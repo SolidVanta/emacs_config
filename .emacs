@@ -1,3 +1,5 @@
+(setq package-archives '(("Gnu" . "https://elpa.gnu.org/packages/")
+                         ("Melpa"   . "https://melpa.org/packages/")))
 (setq backup-directory-alist `(("." . "~/.saves")))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -39,3 +41,25 @@
     (shell-command-on-region (mark) (point) "python -m json.tool" (buffer-name) t)
     )
   )
+
+(defun shell-command-on-buffer (command)
+  (interactive "sShell command on buffer: ")
+  (shell-command-on-region (point-min) (point-max) command t)
+  )
+
+(defun run-code-as-sh()
+  (interactive)
+  (save-excursion
+    (shell-command-on-region
+     (point-min) (point-max)
+     (read-shell-command "Shell command on buffer: " "bash"))
+    )
+  )
+(global-set-key (kbd "C-x 4") 'run-code-as-sh)
+
+(put 'downcase-region 'disabled nil)
+
+(setq-default indent-tabs-mode nil)
+(add-hook 'find-file-hook (lambda () (linum-mode 1)))
+(add-hook 'find-file-hook (lambda () (column-number-mode 1)))
+
