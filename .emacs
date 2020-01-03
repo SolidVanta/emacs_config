@@ -15,6 +15,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ ;; ====================================
+ ;; Basic Setup
+ ;; ====================================
  )
 
 (defun duplicate-line()
@@ -27,14 +30,26 @@
   (yank)
   )
 (global-set-key (kbd "C-d") 'duplicate-line)
+(put 'downcase-region 'disabled nil)
+(setq-default indent-tabs-mode nil)
+(add-hook 'find-file-hook (lambda () (linum-mode 1))) ;; Enable line numbers globally
+(add-hook 'find-file-hook (lambda () (column-number-mode 1))) ;; Show the column number of the cursor
+(setq inhibit-startup-message t)    ;; Hide the startup message
+
+;; ====================================
+;; Development Setup
+;; ====================================
+
+(global-set-key (kbd "C-x 4") 'run-code-as-sh) ;; Run code in shell
 ;; load emacs 24's package system. Add MELPA repository.
-(when (>= emacs-major-version 24)
+(when (>= emacs-major-version 24.5)
   (require 'package)
   (add-to-list
    'package-archives
    ;; '("melpa" . "http://stable.melpa.org/packages/") ; many packages won't show if using stable
    '("melpa" . "http://melpa.milkbox.net/packages/")
    t))
+
 (defun json-format ()
   (interactive)
   (save-excursion
@@ -55,11 +70,7 @@
      (read-shell-command "Shell command on buffer: " "bash"))
     )
   )
-(global-set-key (kbd "C-x 4") 'run-code-as-sh)
-
-(put 'downcase-region 'disabled nil)
-
-(setq-default indent-tabs-mode nil)
-(add-hook 'find-file-hook (lambda () (linum-mode 1)))
-(add-hook 'find-file-hook (lambda () (column-number-mode 1)))
-
+;; Enable Flycheck
+(when (require 'flycheck nil t)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook 'flycheck-mode))
