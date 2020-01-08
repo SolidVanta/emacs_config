@@ -3,27 +3,14 @@
 ;; just comment it out by adding a semicolon to the start of the line.
 ;; You may delete these explanatory comments.
 (package-initialize)
-
 (setq package-archives '(("Gnu" . "https://elpa.gnu.org/packages/")
                          ("Melpa"   . "https://melpa.org/packages/")))
 (setq backup-directory-alist `(("." . "~/.saves/")))
 (setq auto-save-file-name-transforms  `((".*" "~/.saves/" t)))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ansi-color-faces-vector
-   [default default default italic underline success warning error])
- '(custom-enabled-themes (quote (tango-dark)))
- '(package-selected-packages (quote (counsel swiper elpy)))
- '(show-paren-mode t))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
+;; ====================================
+;; Functions and variables Setup
+;; ====================================
 
 (defun duplicate-line()
   (interactive)
@@ -34,26 +21,16 @@
   (next-line 1)
   (yank)
   )
-(global-set-key (kbd "C-d") 'duplicate-line)
-(put 'downcase-region 'disabled nil)
-(setq-default indent-tabs-mode nil)
-(add-hook 'find-file-hook (lambda () (linum-mode 1))) ;; Enable line numbers globally
-(add-hook 'find-file-hook (lambda () (column-number-mode 1))) ;; Show the column number of the cursor
-(setq inhibit-startup-message t)    ;; Hide the startup message
 
-;; ====================================
-;; Development Setup
-;; ====================================
-
-(global-set-key (kbd "C-x 4") 'run-code-as-sh) ;; Run code in shell
-;; load emacs 24's package system. Add MELPA repository.
-(when (>= emacs-major-version 24.5)
-  (require 'package)
-  (add-to-list
-   'package-archives
-   ;; '("melpa" . "http://stable.melpa.org/packages/") ; many packages won't show if using stable
-   '("melpa" . "http://melpa.milkbox.net/packages/")
-   t))
+(defvar myPackages
+  '(better-defaults                 ;; Set up some better Emacs defaults
+    elpy                            ;; Emacs Lisp Python Environment
+    flycheck                        ;; On the fly syntax checking
+    py-autopep8                     ;; Run autopep8 on save
+    blacken                         ;; Black formatting on save
+    material-theme                  ;; Theme
+    )
+  )
 
 (defun json-format ()
   (interactive)
@@ -62,23 +39,46 @@
     )
   )
 
-(defun shell-command-on-buffer (command)
-  (interactive "sShell command on buffer: ")
-  (shell-command-on-region (point-min) (point-max) command t)
-  )
 
-(defun run-code-as-sh()
-  (interactive)
-  (save-excursion
-    (shell-command-on-region
-     (point-min) (point-max)
-     (read-shell-command "Shell command on buffer: " "bash"))
-    )
-  )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes (quote (material)))
+ '(custom-safe-themes
+   (quote
+    ("a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" default))))
+ (global-set-key (kbd "C-d") 'duplicate-line)
+ (global-set-key (kbd "C-x 4") 'run-code-as-sh) ;; Run code in shell
+ (setq-default indent-tabs-mode nil)
+ 
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+(put 'downcase-region 'disabled nil)
+(add-hook 'find-file-hook (lambda () (linum-mode 1))) ;; Enable line numbers globally
+(add-hook 'find-file-hook (lambda () (column-number-mode 1))) ;; Show the column number of the cursor
+
+;; ====================================
+;; Development Setup
+;; ====================================
+(setq inhibit-startup-message t)    ;; Hide the startup message
+;; Enable Elpy
+(elpy-enable)
+
 ;; Enable Flycheck
 (when (require 'flycheck nil t)
   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
   (add-hook 'elpy-mode-hook 'flycheck-mode))
+
+;; Enable autopep8
+(require 'py-autopep8)
+(add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
+
 ;; Enable Swiper/Ivy
 (counsel-mode)
 (ivy-mode 1)
